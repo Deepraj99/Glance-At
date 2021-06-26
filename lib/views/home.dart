@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:glance_at/data/data.dart';
 import 'package:glance_at/model/categories_model.dart';
 import 'package:glance_at/model/wallpaper_model.dart';
+import 'package:glance_at/views/categories.dart';
 import 'package:glance_at/views/search.dart';
 import 'package:glance_at/widgets/widget.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 
 class home extends StatefulWidget {
@@ -19,9 +21,9 @@ class _homeState extends State<home> {
   List<WallpaperModel> wallpapers = [];
   TextEditingController searchController = new TextEditingController();
   getTrendingWallpapers() async {
-    // "https://api.pexels.com/v1/curated?page=2&per_page=40"
+    // "https://api.pexels.com/v1/curated?page=1&per_page=40"
     var API_URI =
-        Uri.parse("https://api.pexels.com/v1/curated?page=2&per_page=40");
+        Uri.parse("https://api.pexels.com/v1/curated?page=1&per_page=40");
     var response = await http.get(API_URI, headers: {"Authorization": apiKey});
 
     Map<String, dynamic> jsonData = jsonDecode(response.body);
@@ -74,22 +76,23 @@ class _homeState extends State<home> {
                       ),
                     ),
                     GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Search(
-                                  searchQuery: searchController.text,
-                                ),
-                              ));
-                        },
-                        child: Icon(Icons.search)),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Search(
+                                searchQuery: searchController.text,
+                              ),
+                            ));
+                      },
+                      child: Icon(Icons.search),
+                    ),
                   ],
                 ),
               ),
-              SizedBox(height: 16),
+              SizedBox(height: 15),
               Container(
-                height: 80,
+                height: 65,
                 child: ListView.builder(
                   padding: EdgeInsets.symmetric(horizontal: 24),
                   itemCount: categories.length,
@@ -118,32 +121,49 @@ class CategoriesTile extends StatelessWidget {
   CategoriesTile({required this.title, required this.imgUrl});
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(right: 4),
-      child: Stack(
-        children: [
-          ClipRRect(
-            child: Image.network(imgUrl,
-                height: 50, width: 100, fit: BoxFit.cover),
-          ),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.black26,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            height: 50,
-            width: 100,
-            alignment: Alignment.center,
-            child: Text(
-              title,
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w500,
-                fontSize: 15,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => Categorie(
+                      categorieName: title.toLowerCase(),
+                    )));
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16.0),
+        ),
+        margin: EdgeInsets.only(right: 4),
+        child: Stack(
+          children: [
+            Container(
+              height: 50.0,
+              width: 100.0,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8.0),
+                child: Image.network(imgUrl, fit: BoxFit.cover),
               ),
             ),
-          ),
-        ],
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.black26,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              height: 50,
+              width: 100,
+              alignment: Alignment.center,
+              child: Text(
+                title,
+                style: GoogleFonts.robotoMono(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 15,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

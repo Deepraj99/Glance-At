@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:glance_at/data/data.dart';
 import 'package:glance_at/model/wallpaper_model.dart';
 import 'package:glance_at/widgets/widget.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 
 class Search extends StatefulWidget {
@@ -49,7 +50,7 @@ class _SearchState extends State<Search> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: brandName(),
+        title: brandNameWithBackButton(),
         elevation: 0.0,
       ),
       body: SingleChildScrollView(
@@ -70,6 +71,7 @@ class _SearchState extends State<Search> {
                         controller: searchController,
                         decoration: InputDecoration(
                           hintText: "Search wallpapers",
+                          hintStyle: GoogleFonts.robotoMono(),
                           border: InputBorder.none,
                         ),
                       ),
