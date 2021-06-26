@@ -21,7 +21,7 @@ class _CategorieState extends State<Categorie> {
     print(query);
     var response = await http.get(
         Uri.parse(
-            "https://api.pexels.com/v1/search?query=$query&per_page=15&page=1"),
+            "https://api.pexels.com/v1/search?query=$query&per_page=200&page=1"),
         headers: {"Authorization": apiKey});
 
     Map<String, dynamic> jsonData = jsonDecode(response.body);

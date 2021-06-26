@@ -45,63 +45,78 @@ class _ImageViewState extends State<ImageView> {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Container(
-                      height: 140.0,
-                      width: MediaQuery.of(context).size.width,
-                      // alignment: Alignment.bottomCenter,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              _save();
-                            },
-                            child: Container(
-                              width: MediaQuery.of(context).size.width / 2,
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 8),
-                              decoration: BoxDecoration(
-                                border:
-                                    Border.all(color: Colors.white54, width: 1),
-                                borderRadius: BorderRadius.circular(30),
-                                gradient: LinearGradient(
-                                  colors: [
-                                    Color(0x36FFFFFF),
-                                    Color(0x0FFFFFFF),
-                                  ],
+                    Stack(
+                      children: [
+                        Center(
+                          child: Container(
+                            height: 50.0,
+                            width: MediaQuery.of(context).size.width / 2,
+                            alignment: Alignment.bottomCenter,
+                            decoration: BoxDecoration(
+                              color: Color(0xff1C1B1B).withOpacity(0.5),
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          height: 131.0,
+                          width: MediaQuery.of(context).size.width,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  _save();
+                                },
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width / 2,
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                        color: Colors.white54, width: 1),
+                                    borderRadius: BorderRadius.circular(30),
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Color(0x36FFFFFF),
+                                        Color(0x0FFFFFFF),
+                                      ],
+                                    ),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        "Download",
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.white70),
+                                      ),
+                                      Text(
+                                        "Image will be downloaded in gallery",
+                                        style: TextStyle(
+                                            fontSize: 10,
+                                            color: Colors.white70),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                              child: Column(
-                                children: [
-                                  Text(
-                                    "Download",
-                                    style: TextStyle(
-                                        fontSize: 16, color: Colors.white70),
-                                  ),
-                                  Text(
-                                    "Image will be downloaded in gallery",
-                                    style: TextStyle(
-                                        fontSize: 10, color: Colors.white70),
-                                  ),
-                                ],
+                              SizedBox(height: 16),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Text(
+                                  "Cancle",
+                                  style: TextStyle(color: Colors.white),
+                                ),
                               ),
-                            ),
+                              SizedBox(height: 50),
+                            ],
                           ),
-                          SizedBox(height: 16),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
-                            child: Text(
-                              "Cancle",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
-                          SizedBox(height: 50),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                    SizedBox(height: 50),
                   ],
                 ),
               ],
