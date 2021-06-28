@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -26,12 +25,7 @@ class _ImageViewState extends State<ImageView> {
     try {
       if (Platform.isAndroid) {
         if (await _requestPermission(Permission.storage)) {
-          // directory = await Directory("/sdcard/GlanceAt/images")
-          //     .create(recursive: true);
-          // var exists = await directory.exists();
-          // exists ? print("Dir exists : Yes") : print("Dir exists : No");
           directory = await getExternalStorageDirectory();
-          // inspect(dir);
         } else {
           return false;
         }
@@ -85,7 +79,7 @@ class _ImageViewState extends State<ImageView> {
 
     bool downloaded = await saveFile(
         "https://images.pexels.com/photos/8369440/pexels-photo-8369440.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-        "image1.png");
+        "image12.png");
     if (downloaded) {
       print("File downloaded");
     } else {
@@ -137,11 +131,14 @@ class _ImageViewState extends State<ImageView> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               loading
-                                  ? Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: LinearProgressIndicator(
-                                        minHeight: 10,
-                                        value: progress,
+                                  ? Container(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: LinearProgressIndicator(
+                                          color: Colors.grey,
+                                          minHeight: 10,
+                                          value: progress,
+                                        ),
                                       ),
                                     )
                                   : GestureDetector(
@@ -209,28 +206,4 @@ class _ImageViewState extends State<ImageView> {
       ),
     );
   }
-
-  // _save() async {
-  //   // if (Platform.isAndroid) {
-  //   //   await _askPermission();
-  //   // }
-
-  //   var response = await Dio()
-  //       .get(widget.imgUrl, options: Options(responseType: ResponseType.bytes));
-  //   final result =
-  //       await ImageGallerySaver.saveImage(Uint8List.fromList(response.data));
-  //   print(result);
-  //   Navigator.pop(context);
-  // }
-
-  // // _askPermission() async {
-  // //   if (Platform.isIOS) {
-  // //     Map<PermissionGroup, PermissionStatus> permissions =
-
-  // //     await PermissionHandler().requestPermissions([PermissionGroup.photos]);
-  // //   } else {
-  // //      PermissionStatus permission =  await PermissionHandler()
-  // //         .checkPermissionStatus(PermissionGroup.storage);
-  // //   }
-  // // }
 }
