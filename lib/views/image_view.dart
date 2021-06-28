@@ -1,9 +1,9 @@
+import 'dart:developer';
 import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class ImageView extends StatefulWidget {
@@ -16,6 +16,87 @@ class ImageView extends StatefulWidget {
 
 class _ImageViewState extends State<ImageView> {
   var filePath;
+  bool loading = false;
+  double progress = 0.0;
+  final Dio dio = Dio();
+
+  Future<bool> saveFile(String url, String filename) async {
+    var directory;
+
+    try {
+      if (Platform.isAndroid) {
+        if (await _requestPermission(Permission.storage)) {
+          // directory = await Directory("/sdcard/GlanceAt/images")
+          //     .create(recursive: true);
+          // var exists = await directory.exists();
+          // exists ? print("Dir exists : Yes") : print("Dir exists : No");
+          directory = await getExternalStorageDirectory();
+          // inspect(dir);
+        } else {
+          return false;
+        }
+      } else {
+        if (await _requestPermission(Permission.photos)) {
+          directory = await getTemporaryDirectory();
+        } else {
+          return false;
+        }
+      }
+      if (!await directory.exists()) {
+        await directory.create(recursive: true);
+      }
+      if (await directory.exists()) {
+        File saveFile = File(directory.path + "/$filename");
+        await dio.download(url, saveFile.path,
+            onReceiveProgress: (downloaded, totalSize) {
+          setState(() {
+            progress = downloaded / totalSize;
+          });
+        });
+        if (Platform.isIOS) {
+          await ImageGallerySaver.saveFile(saveFile.path,
+              isReturnPathOfIOS: true);
+        }
+        return true;
+      }
+    } catch (e) {
+      print(e);
+    }
+    return false;
+  }
+
+  Future<bool> _requestPermission(Permission permission) async {
+    if (await permission.isGranted) {
+      return true;
+    } else {
+      var result = await permission.request();
+      if (result == PermissionStatus.granted) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+
+  downloadFile() async {
+    setState(() {
+      loading = true;
+    });
+
+    bool downloaded = await saveFile(
+        "https://images.pexels.com/photos/8369440/pexels-photo-8369440.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
+        "image1.png");
+    if (downloaded) {
+      print("File downloaded");
+    } else {
+      print("File not downloaded");
+    }
+
+    setState(() {
+      loading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,15 +114,6 @@ class _ImageViewState extends State<ImageView> {
             alignment: Alignment.bottomCenter,
             child: Stack(
               children: [
-                // Container(
-                //   height: 50.0,
-                //   width: MediaQuery.of(context).size.width,
-                //   alignment: Alignment.bottomCenter,
-                //   decoration: BoxDecoration(
-                //     color: Color(0xff1C1B1B).withOpacity(0.8),
-                //     borderRadius: BorderRadius.circular(30),
-                //   ),
-                // ),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -64,43 +136,54 @@ class _ImageViewState extends State<ImageView> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              GestureDetector(
-                                onTap: () {
-                                  _save();
-                                },
-                                child: Container(
-                                  width: MediaQuery.of(context).size.width / 2,
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 8),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color: Colors.white54, width: 1),
-                                    borderRadius: BorderRadius.circular(30),
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        Color(0x36FFFFFF),
-                                        Color(0x0FFFFFFF),
-                                      ],
+                              loading
+                                  ? Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: LinearProgressIndicator(
+                                        minHeight: 10,
+                                        value: progress,
+                                      ),
+                                    )
+                                  : GestureDetector(
+                                      onTap: () {
+                                        downloadFile();
+                                      },
+                                      child: Container(
+                                        width:
+                                            MediaQuery.of(context).size.width /
+                                                2,
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 8),
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                              color: Colors.white54, width: 1),
+                                          borderRadius:
+                                              BorderRadius.circular(30),
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              Color(0x36FFFFFF),
+                                              Color(0x0FFFFFFF),
+                                            ],
+                                          ),
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            Text(
+                                              "Download",
+                                              style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: Colors.white70),
+                                            ),
+                                            Text(
+                                              "Image will be downloaded in gallery",
+                                              style: TextStyle(
+                                                  fontSize: 10,
+                                                  color: Colors.white70),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        "Download",
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.white70),
-                                      ),
-                                      Text(
-                                        "Image will be downloaded in gallery",
-                                        style: TextStyle(
-                                            fontSize: 10,
-                                            color: Colors.white70),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
                               SizedBox(height: 16),
                               GestureDetector(
                                 onTap: () {
@@ -127,27 +210,27 @@ class _ImageViewState extends State<ImageView> {
     );
   }
 
-  _save() async {
-    // if (Platform.isAndroid) {
-    //   await _askPermission();
-    // }
+  // _save() async {
+  //   // if (Platform.isAndroid) {
+  //   //   await _askPermission();
+  //   // }
 
-    var response = await Dio()
-        .get(widget.imgUrl, options: Options(responseType: ResponseType.bytes));
-    final result =
-        await ImageGallerySaver.saveImage(Uint8List.fromList(response.data));
-    print(result);
-    Navigator.pop(context);
-  }
-
-  // _askPermission() async {
-  //   if (Platform.isIOS) {
-  //     Map<PermissionGroup, PermissionStatus> permissions =
-
-  //     await PermissionHandler().requestPermissions([PermissionGroup.photos]);
-  //   } else {
-  //      PermissionStatus permission =  await PermissionHandler()
-  //         .checkPermissionStatus(PermissionGroup.storage);
-  //   }
+  //   var response = await Dio()
+  //       .get(widget.imgUrl, options: Options(responseType: ResponseType.bytes));
+  //   final result =
+  //       await ImageGallerySaver.saveImage(Uint8List.fromList(response.data));
+  //   print(result);
+  //   Navigator.pop(context);
   // }
+
+  // // _askPermission() async {
+  // //   if (Platform.isIOS) {
+  // //     Map<PermissionGroup, PermissionStatus> permissions =
+
+  // //     await PermissionHandler().requestPermissions([PermissionGroup.photos]);
+  // //   } else {
+  // //      PermissionStatus permission =  await PermissionHandler()
+  // //         .checkPermissionStatus(PermissionGroup.storage);
+  // //   }
+  // // }
 }
