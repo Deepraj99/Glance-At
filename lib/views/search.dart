@@ -1,8 +1,8 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:glance_at/data/data.dart';
 import 'package:glance_at/model/wallpaper_model.dart';
+import 'package:glance_at/views/nextPrePage.dart';
 import 'package:glance_at/widgets/widget.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -16,6 +16,7 @@ class Search extends StatefulWidget {
 }
 
 class _SearchState extends State<Search> {
+  int page = 1;
   List<WallpaperModel> wallpapers = [];
   TextEditingController searchController = new TextEditingController();
 
@@ -23,14 +24,13 @@ class _SearchState extends State<Search> {
     print(query);
     var response = await http.get(
         Uri.parse(
-            "https://api.pexels.com/v1/search?query=$query&per_page=200&page=1"),
+            "https://api.pexels.com/v1/search?query=$query&per_page=40&page=$page"),
         headers: {"Authorization": apiKey});
 
     Map<String, dynamic> jsonData = jsonDecode(response.body);
     List<WallpaperModel> tempWallpapers = [];
     jsonData["photos"].forEach((element) {
-      print(element);
-      // WallpaperModel wallpaperModel = new WallpaperModel();
+      // print(element);
       WallpaperModel wallpaperModel = new WallpaperModel.fromMap(element);
       tempWallpapers.add(wallpaperModel);
     });
@@ -87,6 +87,35 @@ class _SearchState extends State<Search> {
               ),
               SizedBox(height: 16),
               wallpapersList(wallpapers: wallpapers, context: context),
+              SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if (page > 1) {
+                          page -= 1;
+                        } else {
+                          page = page;
+                        }
+                      });
+                      getSearchWallpapers(widget.searchQuery);
+                    },
+                    child: prePage(),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        page += 1;
+                      });
+                      getSearchWallpapers(widget.searchQuery);
+                    },
+                    child: nextPage(),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
             ],
           ),
         ),
