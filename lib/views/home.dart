@@ -17,19 +17,18 @@ class home extends StatefulWidget {
 }
 
 class _homeState extends State<home> {
+  int page = 1;
   List<CategoriesModel> categories = [];
   List<WallpaperModel> wallpapers = [];
   TextEditingController searchController = new TextEditingController();
   getTrendingWallpapers() async {
-    // "https://api.pexels.com/v1/curated?page=1&per_page=40"
     var API_URI =
-        Uri.parse("https://api.pexels.com/v1/curated?page=1&per_page=200");
+        Uri.parse("https://api.pexels.com/v1/curated?page=$page&per_page=2");
     var response = await http.get(API_URI, headers: {"Authorization": apiKey});
 
     Map<String, dynamic> jsonData = jsonDecode(response.body);
     List<WallpaperModel> tempWallpapers = [];
     jsonData["photos"].forEach((element) {
-      // WallpaperModel wallpaperModel = new WallpaperModel();
       WallpaperModel wallpaperModel = new WallpaperModel.fromMap(element);
       tempWallpapers.add(wallpaperModel);
     });
@@ -99,7 +98,6 @@ class _homeState extends State<home> {
                   shrinkWrap: true,
                   scrollDirection: Axis.horizontal,
                   itemBuilder: (context, index) {
-                    // wallpapers[index].src.portrait
                     return CategoriesTile(
                       title: categories[index].categoriesName,
                       imgUrl: categories[index].imgUrl,
@@ -107,7 +105,62 @@ class _homeState extends State<home> {
                   },
                 ),
               ),
-              wallpapersList(wallpapers: wallpapers, context: context)
+              wallpapersList(wallpapers: wallpapers, context: context),
+              SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if (page > 1) {
+                          page -= 1;
+                        } else {
+                          page = page;
+                        }
+                      });
+                      print(page);
+                      getTrendingWallpapers();
+                    },
+                    child: Container(
+                      width: MediaQuery.of(context).size.width / 3,
+                      height: 50,
+                      margin: EdgeInsets.only(left: 10.0),
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey, width: 1),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Center(
+                        child: Icon(
+                          Icons.arrow_back_ios,
+                        ),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        page += 1;
+                      });
+                      getTrendingWallpapers();
+                    },
+                    child: Container(
+                      width: MediaQuery.of(context).size.width / 3,
+                      height: 50.0,
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                      margin: EdgeInsets.only(right: 10.0),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey, width: 1),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Center(
+                        child: Icon(Icons.arrow_forward_ios),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
