@@ -163,26 +163,7 @@ class _homeState extends State<home> {
                     },
                     child: prePage(),
                   ),
-                  Container(
-                    width: 100.0,
-                    height: 50.0,
-                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                    margin: EdgeInsets.only(left: 10.0),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey, width: 1),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '$page',
-                        style: GoogleFonts.lato(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black54,
-                        ),
-                      ),
-                    ),
-                  ),
+                  currPageNumber(page),
                   GestureDetector(
                     onTap: () {
                       setState(() {

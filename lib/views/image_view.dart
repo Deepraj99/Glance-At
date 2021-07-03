@@ -43,8 +43,12 @@ class _ImageViewState extends State<ImageView> {
       }
       if (await directory.exists()) {
         File saveFile = File(directory.path + "/$filename");
-        print(saveFile);
-        await dio.download(url, saveFile.path,
+        String ss = saveFile.path;
+        int pos = ss.indexOf('Android');
+        String imgPath = ss.substring(0, pos);
+        imgPath += 'Download' + "/$filename";
+        print(imgPath);
+        await dio.download(url, imgPath,
             onReceiveProgress: (downloaded, totalSize) {
           setState(() {
             progress = downloaded / totalSize;
@@ -130,7 +134,7 @@ class _ImageViewState extends State<ImageView> {
                           ),
                         ),
                         Container(
-                          height: 143.0,
+                          height: 132.0,
                           width: MediaQuery.of(context).size.width,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -141,14 +145,14 @@ class _ImageViewState extends State<ImageView> {
                                         padding: const EdgeInsets.all(8.0),
                                         child: LinearProgressIndicator(
                                           color: Colors.grey,
-                                          minHeight: 10,
+                                          minHeight: 5,
                                           value: progress,
                                         ),
                                       ),
                                     )
                                   : GestureDetector(
                                       onTap: () {
-                                        _showToast(context);
+                                        // _showToast(context);
                                         downloadFile();
                                       },
                                       child: Container(
@@ -206,15 +210,15 @@ class _ImageViewState extends State<ImageView> {
     );
   }
 
-  void _showToast(BuildContext context) {
-    final scaffold = ScaffoldMessenger.of(context);
-    scaffold.showSnackBar(
-      SnackBar(
-        content:
-            const Text('ImagePath: Android/data/com.example.glance_at/files'),
-        // action: SnackBarAction(
-        //     label: 'UNDO', onPressed: scaffold.hideCurrentSnackBar),
-      ),
-    );
-  }
+  // void _showToast(BuildContext context) {
+  //   final scaffold = ScaffoldMessenger.of(context);
+  //   scaffold.showSnackBar(
+  //     SnackBar(
+  //       content:
+  //           const Text('ImagePath: Android/data/com.example.glance_at/files'),
+  //       // action: SnackBarAction(
+  //       //     label: 'UNDO', onPressed: scaffold.hideCurrentSnackBar),
+  //     ),
+  //   );
+  // }
 }

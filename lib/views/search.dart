@@ -104,6 +104,7 @@ class _SearchState extends State<Search> {
                     },
                     child: prePage(),
                   ),
+                  currPageNumber(page),
                   GestureDetector(
                     onTap: () {
                       setState(() {

@@ -75,6 +75,7 @@ class _CategorieState extends State<Categorie> {
                     },
                     child: prePage(),
                   ),
+                  currPageNumber(page),
                   GestureDetector(
                     onTap: () {
                       setState(() {
