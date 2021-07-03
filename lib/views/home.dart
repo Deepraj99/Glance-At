@@ -3,10 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:glance_at/data/data.dart';
 import 'package:glance_at/model/categories_model.dart';
 import 'package:glance_at/model/wallpaper_model.dart';
-import 'package:glance_at/views/categories.dart';
+import 'package:glance_at/views/categoriesTile.dart';
+import 'package:glance_at/views/nextPrePage.dart';
 import 'package:glance_at/views/search.dart';
 import 'package:glance_at/widgets/widget.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 import 'package:http/http.dart' as http;
 
 class home extends StatefulWidget {
@@ -23,7 +27,7 @@ class _homeState extends State<home> {
   TextEditingController searchController = new TextEditingController();
   getTrendingWallpapers() async {
     var API_URI =
-        Uri.parse("https://api.pexels.com/v1/curated?page=$page&per_page=2");
+        Uri.parse("https://api.pexels.com/v1/curated?page=$page&per_page=40");
     var response = await http.get(API_URI, headers: {"Authorization": apiKey});
 
     Map<String, dynamic> jsonData = jsonDecode(response.body);
@@ -42,6 +46,14 @@ class _homeState extends State<home> {
     getTrendingWallpapers();
     categories = getCategories();
     super.initState();
+  }
+
+  _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 
   @override
@@ -70,6 +82,7 @@ class _homeState extends State<home> {
                         controller: searchController,
                         decoration: InputDecoration(
                           hintText: "Search wallpapers",
+                          hintStyle: GoogleFonts.kanit(fontSize: 18),
                           border: InputBorder.none,
                         ),
                       ),
@@ -108,6 +121,32 @@ class _homeState extends State<home> {
               wallpapersList(wallpapers: wallpapers, context: context),
               SizedBox(height: 10),
               Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text(
+                    "Photos provided By ",
+                    style: TextStyle(
+                        color: Colors.black54,
+                        fontSize: 12,
+                        fontFamily: 'Overpass'),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      _launchURL("https://www.pexels.com/");
+                    },
+                    child: Container(
+                        child: Text(
+                      "Pexels",
+                      style: TextStyle(
+                          color: Colors.blue,
+                          fontSize: 12,
+                          fontFamily: 'Overpass'),
+                    )),
+                  )
+                ],
+              ),
+              SizedBox(height: 10),
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   GestureDetector(
@@ -122,22 +161,9 @@ class _homeState extends State<home> {
                       print(page);
                       getTrendingWallpapers();
                     },
-                    child: Container(
-                      width: MediaQuery.of(context).size.width / 3,
-                      height: 50,
-                      margin: EdgeInsets.only(left: 10.0),
-                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey, width: 1),
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      child: Center(
-                        child: Icon(
-                          Icons.arrow_back_ios,
-                        ),
-                      ),
-                    ),
+                    child: prePage(),
                   ),
+                  currPageNumber(page),
                   GestureDetector(
                     onTap: () {
                       setState(() {
@@ -145,77 +171,13 @@ class _homeState extends State<home> {
                       });
                       getTrendingWallpapers();
                     },
-                    child: Container(
-                      width: MediaQuery.of(context).size.width / 3,
-                      height: 50.0,
-                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                      margin: EdgeInsets.only(right: 10.0),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey, width: 1),
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      child: Center(
-                        child: Icon(Icons.arrow_forward_ios),
-                      ),
-                    ),
+                    child: nextPage(),
                   ),
                 ],
               ),
+              SizedBox(height: 10),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class CategoriesTile extends StatelessWidget {
-  final String imgUrl, title;
-  CategoriesTile({required this.title, required this.imgUrl});
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => Categorie(
-                      categorieName: title.toLowerCase(),
-                    )));
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16.0),
-        ),
-        margin: EdgeInsets.only(right: 4),
-        child: Stack(
-          children: [
-            Container(
-              height: 50.0,
-              width: 100.0,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8.0),
-                child: Image.network(imgUrl, fit: BoxFit.cover),
-              ),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.black26,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              height: 50,
-              width: 100,
-              alignment: Alignment.center,
-              child: Text(
-                title,
-                style: GoogleFonts.robotoMono(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 15,
-                ),
-              ),
-            ),
-          ],
         ),
       ),
     );

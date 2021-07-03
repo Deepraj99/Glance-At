@@ -3,21 +3,6 @@ import 'package:glance_at/model/wallpaper_model.dart';
 import 'package:glance_at/views/image_view.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// Widget brandName() {
-//   return Center(
-//     child: RichText(
-//       text: TextSpan(
-//         style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-//         children: const <TextSpan>[
-//           TextSpan(text: 'Glance', style: TextStyle(color: Colors.black87,)),
-//           // TextSpan(text: 'Glance', style: TextStyle(color: Colors.black87,)),
-//           TextSpan(text: 'At', style: TextStyle(color: Colors.blue)),
-//         ],
-//       ),
-//     ),
-//   );
-// }
-
 Widget brandName() {
   return Container(
     child: Row(
@@ -25,16 +10,16 @@ Widget brandName() {
       children: [
         Text(
           'Glance',
-          style: GoogleFonts.robotoMono(
-            fontSize: 20,
+          style: GoogleFonts.lato(
+            fontSize: 22,
             fontWeight: FontWeight.w500,
             color: Colors.black87,
           ),
         ),
         Text(
           'At',
-          style: GoogleFonts.robotoMono(
-            fontSize: 20,
+          style: GoogleFonts.lato(
+            fontSize: 22,
             fontWeight: FontWeight.w500,
             color: Colors.blue,
           ),
@@ -51,17 +36,17 @@ Widget brandNameWithBackButton() {
       children: [
         Text(
           'Glance',
-          style: GoogleFonts.robotoMono(
-            fontSize: 20,
-            fontWeight: FontWeight.w500,
+          style: GoogleFonts.lato(
+            fontSize: 22,
+            fontWeight: FontWeight.w600,
             color: Colors.black87,
           ),
         ),
         Text(
           'At',
-          style: GoogleFonts.robotoMono(
-            fontSize: 20,
-            fontWeight: FontWeight.w500,
+          style: GoogleFonts.lato(
+            fontSize: 22,
+            fontWeight: FontWeight.w600,
             color: Colors.blue,
           ),
         ),

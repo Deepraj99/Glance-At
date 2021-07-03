@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class ImageView extends StatefulWidget {
   final String imgUrl;
@@ -15,13 +17,13 @@ class ImageView extends StatefulWidget {
 
 class _ImageViewState extends State<ImageView> {
   var filePath;
+  var imgUrl;
   bool loading = false;
   double progress = 0.0;
   final Dio dio = Dio();
 
   Future<bool> saveFile(String url, String filename) async {
     var directory;
-
     try {
       if (Platform.isAndroid) {
         if (await _requestPermission(Permission.storage)) {
@@ -41,7 +43,12 @@ class _ImageViewState extends State<ImageView> {
       }
       if (await directory.exists()) {
         File saveFile = File(directory.path + "/$filename");
-        await dio.download(url, saveFile.path,
+        String ss = saveFile.path;
+        int pos = ss.indexOf('Android');
+        String imgPath = ss.substring(0, pos);
+        imgPath += 'Download' + "/$filename";
+        print(imgPath);
+        await dio.download(url, imgPath,
             onReceiveProgress: (downloaded, totalSize) {
           setState(() {
             progress = downloaded / totalSize;
@@ -77,9 +84,9 @@ class _ImageViewState extends State<ImageView> {
       loading = true;
     });
 
-    bool downloaded = await saveFile(
-        "https://images.pexels.com/photos/8369440/pexels-photo-8369440.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-        "image12.png");
+    bool downloaded =
+        await saveFile(widget.imgUrl, widget.imgUrl.substring(33, 40) + ".jpg");
+
     if (downloaded) {
       print("File downloaded");
     } else {
@@ -93,7 +100,9 @@ class _ImageViewState extends State<ImageView> {
 
   @override
   Widget build(BuildContext context) {
+    final key = new GlobalKey<ScaffoldState>();
     return Scaffold(
+      key: key,
       body: Stack(
         children: [
           Hero(
@@ -125,7 +134,7 @@ class _ImageViewState extends State<ImageView> {
                           ),
                         ),
                         Container(
-                          height: 131.0,
+                          height: 132.0,
                           width: MediaQuery.of(context).size.width,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -136,19 +145,21 @@ class _ImageViewState extends State<ImageView> {
                                         padding: const EdgeInsets.all(8.0),
                                         child: LinearProgressIndicator(
                                           color: Colors.grey,
-                                          minHeight: 10,
+                                          minHeight: 5,
                                           value: progress,
                                         ),
                                       ),
                                     )
                                   : GestureDetector(
                                       onTap: () {
+                                        // _showToast(context);
                                         downloadFile();
                                       },
                                       child: Container(
                                         width:
                                             MediaQuery.of(context).size.width /
                                                 2,
+                                        height: 50,
                                         padding: EdgeInsets.symmetric(
                                             horizontal: 8, vertical: 8),
                                         decoration: BoxDecoration(
@@ -163,21 +174,13 @@ class _ImageViewState extends State<ImageView> {
                                             ],
                                           ),
                                         ),
-                                        child: Column(
-                                          children: [
-                                            Text(
-                                              "Download",
-                                              style: TextStyle(
-                                                  fontSize: 16,
-                                                  color: Colors.white70),
-                                            ),
-                                            Text(
-                                              "Image will be downloaded in gallery",
-                                              style: TextStyle(
-                                                  fontSize: 10,
-                                                  color: Colors.white70),
-                                            ),
-                                          ],
+                                        child: Center(
+                                          child: Text(
+                                            "Download",
+                                            style: GoogleFonts.lato(
+                                                fontSize: 18,
+                                                color: Colors.white70),
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -206,4 +209,16 @@ class _ImageViewState extends State<ImageView> {
       ),
     );
   }
+
+  // void _showToast(BuildContext context) {
+  //   final scaffold = ScaffoldMessenger.of(context);
+  //   scaffold.showSnackBar(
+  //     SnackBar(
+  //       content:
+  //           const Text('ImagePath: Android/data/com.example.glance_at/files'),
+  //       // action: SnackBarAction(
+  //       //     label: 'UNDO', onPressed: scaffold.hideCurrentSnackBar),
+  //     ),
+  //   );
+  // }
 }
