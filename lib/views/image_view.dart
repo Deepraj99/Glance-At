@@ -6,6 +6,9 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'dart:async';
+import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 
 class ImageView extends StatefulWidget {
   final String imgUrl;
@@ -16,14 +19,22 @@ class ImageView extends StatefulWidget {
 }
 
 class _ImageViewState extends State<ImageView> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
   var filePath;
   var imgUrl;
   bool loading = false;
   double progress = 0.0;
   final Dio dio = Dio();
+  late String _localPath;
+  late String imgPath;
 
   Future<bool> saveFile(String url, String filename) async {
     var directory;
+
     try {
       if (Platform.isAndroid) {
         if (await _requestPermission(Permission.storage)) {
@@ -45,7 +56,8 @@ class _ImageViewState extends State<ImageView> {
         File saveFile = File(directory.path + "/$filename");
         String ss = saveFile.path;
         int pos = ss.indexOf('Android');
-        String imgPath = ss.substring(0, pos);
+        imgPath = ss.substring(0, pos);
+
         imgPath += 'Download' + "/$filename";
         print(imgPath);
         await dio.download(url, imgPath,
@@ -122,18 +134,8 @@ class _ImageViewState extends State<ImageView> {
                   children: [
                     Stack(
                       children: [
-                        Center(
-                          child: Container(
-                            height: 50.0,
-                            width: MediaQuery.of(context).size.width / 2,
-                            alignment: Alignment.bottomCenter,
-                            decoration: BoxDecoration(
-                              color: Color(0xff1C1B1B).withOpacity(0.5),
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                          ),
-                        ),
                         Container(
+                          margin: EdgeInsets.fromLTRB(30, 0, 30, 0),
                           height: 132.0,
                           width: MediaQuery.of(context).size.width,
                           child: Column(
@@ -150,39 +152,59 @@ class _ImageViewState extends State<ImageView> {
                                         ),
                                       ),
                                     )
-                                  : GestureDetector(
-                                      onTap: () {
-                                        // _showToast(context);
-                                        downloadFile();
-                                      },
-                                      child: Container(
-                                        width:
-                                            MediaQuery.of(context).size.width /
+                                  : Stack(
+                                      children: [
+                                        Container(
+                                          height: 50.0,
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              2,
+                                          alignment: Alignment.bottomCenter,
+                                          decoration: BoxDecoration(
+                                            color: Color(0xff1C1B1B)
+                                                .withOpacity(0.5),
+                                            borderRadius:
+                                                BorderRadius.circular(30),
+                                          ),
+                                        ),
+                                        GestureDetector(
+                                          onTap: () {
+                                            downloadFile();
+                                            _showToast(context);
+                                          },
+                                          child: Container(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width /
                                                 2,
-                                        height: 50,
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 8, vertical: 8),
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                              color: Colors.white54, width: 1),
-                                          borderRadius:
-                                              BorderRadius.circular(30),
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              Color(0x36FFFFFF),
-                                              Color(0x0FFFFFFF),
-                                            ],
+                                            height: 50,
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 8, vertical: 8),
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                  color: Colors.white54,
+                                                  width: 1),
+                                              borderRadius:
+                                                  BorderRadius.circular(30),
+                                              gradient: LinearGradient(
+                                                colors: [
+                                                  Color(0x36FFFFFF),
+                                                  Color(0x0FFFFFFF),
+                                                ],
+                                              ),
+                                            ),
+                                            child: Center(
+                                              child: Text(
+                                                "Download",
+                                                style: GoogleFonts.lato(
+                                                    fontSize: 18,
+                                                    color: Colors.white70),
+                                              ),
+                                            ),
                                           ),
                                         ),
-                                        child: Center(
-                                          child: Text(
-                                            "Download",
-                                            style: GoogleFonts.lato(
-                                                fontSize: 18,
-                                                color: Colors.white70),
-                                          ),
-                                        ),
-                                      ),
+                                      ],
                                     ),
                               SizedBox(height: 16),
                               GestureDetector(
@@ -191,10 +213,11 @@ class _ImageViewState extends State<ImageView> {
                                 },
                                 child: Text(
                                   "Cancle",
-                                  style: TextStyle(color: Colors.white),
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 15),
                                 ),
                               ),
-                              SizedBox(height: 50),
+                              SizedBox(height: 40),
                             ],
                           ),
                         ),
@@ -210,15 +233,14 @@ class _ImageViewState extends State<ImageView> {
     );
   }
 
-  // void _showToast(BuildContext context) {
-  //   final scaffold = ScaffoldMessenger.of(context);
-  //   scaffold.showSnackBar(
-  //     SnackBar(
-  //       content:
-  //           const Text('ImagePath: Android/data/com.example.glance_at/files'),
-  //       // action: SnackBarAction(
-  //       //     label: 'UNDO', onPressed: scaffold.hideCurrentSnackBar),
-  //     ),
-  //   );
-  // }
+  void _showToast(BuildContext context) {
+    final scaffold = ScaffoldMessenger.of(context);
+    scaffold.showSnackBar(
+      SnackBar(
+        content: const Text("Image saved in 'Download' folder."),
+        // action: SnackBarAction(
+        //     label: 'UNDO', onPressed: scaffold.hideCurrentSnackBar),
+      ),
+    );
+  }
 }

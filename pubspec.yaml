@@ -35,6 +35,9 @@ dependencies:
   flutter_linkify: ^5.0.2
   url_launcher: ^6.0.7
   fluttertoast: ^8.0.7
+  share: ^2.0.4
+  permission: ^0.1.7
+  wallpaperplugin: ^0.1.2
 
 
   
